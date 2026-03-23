@@ -33,6 +33,16 @@ let groundImg, groundDeepImg;
 let attacking = false; // track if the player is attacking
 let attackFrameCounter = 0; // tracking attack animation
 
+// Debug variables
+let debugMode = false;
+let moonGravityActive = false;
+let hitboxesVisible = false;
+const NORMAL_GRAVITY = 10;
+const MOON_GRAVITY = 1.67;
+let showInstructions = true;
+let instructionTimer = 0;
+let instructionDuration = 600; // 10 seconds at 60fps
+
 // --- TILE MAP ---
 // an array that uses the tile key to create the level
 let level = [
@@ -154,6 +164,22 @@ function startMusicIfNeeded() {
 
 function keyPressed() {
   startMusicIfNeeded();
+
+  // Hide instructions on any key press
+  showInstructions = false;
+
+  // Debug controls
+  if (key === "m" || key === "M") {
+    debugMode = !debugMode;
+  }
+  if (key === "o" || key === "O") {
+    moonGravityActive = !moonGravityActive;
+    world.gravity.y = moonGravityActive ? MOON_GRAVITY : NORMAL_GRAVITY;
+  }
+  if (key === "h" || key === "H") {
+    hitboxesVisible = !hitboxesVisible;
+    toggleHitboxes();
+  }
 }
 
 function mousePressed() {
@@ -168,8 +194,12 @@ function touchStarted() {
 function draw() {
   // --- BACKGROUND ---
   camera.off();
-  imageMode(CORNER);
-  image(bgImg, 0, 0, bgImg.width, bgImg.height);
+  if (bgImg) {
+    imageMode(CORNER);
+    image(bgImg, 0, 0, bgImg.width, bgImg.height);
+  } else {
+    background(50);
+  }
   camera.on();
 
   // --- PLAYER CONTROLS ---
@@ -221,4 +251,89 @@ function draw() {
 
   // --- KEEP IN VIEW ---
   player.pos.x = constrain(player.pos.x, FRAME_W / 2, VIEWW - FRAME_W / 2);
+
+  // --- DEBUG SCREEN ---
+  displayDebugScreen();
+  displayInstructions();
+  camera.on();
+}
+
+function displayDebugScreen() {
+  if (!debugMode) return;
+
+  camera.off();
+  push();
+
+  // Black background rectangle - centered
+  fill(0, 0, 0, 180);
+  stroke(100, 100, 100);
+  strokeWeight(2);
+  rect(width / 2 - 150, height / 2 - 80, 300, 160);
+
+  // Instructions at top
+  fill(150, 200, 255);
+  textSize(8);
+  textAlign(CENTER);
+  text(
+    "Press O - Moon Gravity | Press H - Hitboxes",
+    width / 2,
+    height / 2 - 65,
+  );
+
+  // Title
+  fill(255);
+  textSize(12);
+  textAlign(CENTER);
+  text("DEBUG SCREEN", width / 2, height / 2 - 45);
+
+  // Moon Gravity status
+  fill(255);
+  textSize(9);
+  textAlign(CENTER);
+  text(
+    "Moon Gravity: " + (moonGravityActive ? "ON" : "OFF"),
+    width / 2,
+    height / 2 - 20,
+  );
+
+  // Hitbox status
+  textSize(9);
+  text(
+    "Hitboxes: " + (hitboxesVisible ? "ON" : "OFF"),
+    width / 2,
+    height / 2 + 4,
+  );
+
+  // Current gravity value
+  textSize(8);
+  text("Current Gravity: " + GRAVITY.toFixed(2), width / 2, height / 2 - 8);
+
+  pop();
+}
+
+function toggleHitboxes() {
+  allSprites.forEach((sprite) => {
+    sprite.debug = hitboxesVisible;
+  });
+}
+
+function displayInstructions() {
+  if (!showInstructions) return;
+
+  camera.off();
+  push();
+
+  // Black background rectangle at bottom - full width
+  fill(0, 0, 0, 220);
+  noStroke();
+  rect(0, height - 40, width, 40);
+
+  // Instructions text
+  fill(255);
+  textSize(12);
+  textAlign(CENTER);
+  textStyle(NORMAL);
+  text("Press M to toggle the Debug Screen", width / 2, height - 18);
+
+  pop();
 }
