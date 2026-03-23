@@ -20,8 +20,9 @@ Based on example 3, creates a debug screen that toggles upon pressing the 'm' ke
 
 - The game will load level one
 - Use WAD or the arrow keys to move the fox le in any direction
-- Press m to toggle the debug screen
-- Press o to turn moon gravity on and off
+- Press 'm' to toggle the debug screen
+- Press 'o' to toggle moon gravity on and off
+- Press 'h' to toggle the hit box on and off
 
 ---
 
